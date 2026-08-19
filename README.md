@@ -37,11 +37,7 @@ The team member information is taken from the project abstract.
 
 ### Supervisor
 
-**Supervisor:** `[ENTER SUPERVISOR NAME]`
-
-### Course Coordinator
-
-**Course Coordinator:** `[ENTER COURSE COORDINATOR NAME IF REQUIRED]`
+**Supervisor:** Dr. K Swanthana
 
 ---
 
