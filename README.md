@@ -528,10 +528,5 @@ The project abstract identifies domain-specific language models, mathematical in
 2. **Ankit Swami** — 2420090008
 3. **Nikhil Sai** — 2420030635
 
-**Supervisor:** `[ENTER SUPERVISOR NAME]`
-
-**Course:** `[ENTER COURSE NAME]`
-
-**Academic Year:** `2026`
 
 **Repository:** `KLH-cse-2026-2420030635-mathslm`
