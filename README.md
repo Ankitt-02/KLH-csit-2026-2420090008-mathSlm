@@ -1,4 +1,4 @@
-# MathSLM: A Transformer-Based Small Language Model for Mathematical Reasoning
+# MathSLM: A Transformer-Based Small Language Model for Mathematical Reasoning.
 
 ## 1. Project Overview
 
