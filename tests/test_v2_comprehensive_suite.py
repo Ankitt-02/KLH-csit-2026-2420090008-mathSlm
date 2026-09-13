@@ -299,5 +299,28 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
                         for target in prohibited:
                             self.assertNotIn(target, content, f"Found external API/pretrained import '{target}' in {full_path}!")
 
+    def test_15_tiny_sanity_function_entry_invocation(self):
+        """Item 15: Directly execute run_tiny_sanity entry point to catch missing imports or NameErrors."""
+        from unittest.mock import patch
+        
+        # Verify run_tiny_sanity entry point setup and first iteration executes cleanly without NameError
+        original_loader = DataLoader
+        def mock_loader(*args, **kwargs):
+            loader = original_loader(*args, **kwargs)
+            # Limit to 1 batch for dry-run test
+            class LimitedLoader:
+                def __iter__(self):
+                    it = iter(loader)
+                    yield next(it)
+                def __len__(self):
+                    return len(loader)
+            return LimitedLoader()
+
+        with patch("scripts.run_tiny_sanity.DataLoader", side_effect=mock_loader):
+            try:
+                run_tiny_sanity.run_tiny_sanity()
+            except Exception as e:
+                self.fail(f"run_tiny_sanity entry point failed with error: {e}")
+
 if __name__ == "__main__":
     unittest.main()

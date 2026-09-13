@@ -1,6 +1,8 @@
 import sys
 import os
 import math
+import random
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from datasets import load_from_disk
@@ -11,7 +13,7 @@ from model.config import MathSLMConfig
 from model.transformer import MathSLM
 from tokenizer.tokenizer import MathTokenizer
 from training.dataset import MathDataset
-from training.train import collate_fn_batch
+from training.train import collate_fn_batch, get_device
 from model.generation import generate
 
 # Configuration Constants
