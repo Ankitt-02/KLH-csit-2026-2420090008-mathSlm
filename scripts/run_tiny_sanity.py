@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 import torch
 from torch.utils.data import DataLoader
 from datasets import load_from_disk
@@ -13,6 +14,13 @@ from training.dataset import MathDataset
 from training.train import collate_fn_batch
 from model.generation import generate
 
+# Configuration Constants
+DATASET_SIZE = 200
+EPOCHS = 20
+BATCH_SIZE = 4
+MAX_SEQ_LEN = 64
+OBJECTIVE_MODE = "direct"
+
 def check_exact_match(pred, expected):
     pred = pred.strip()
     expected = expected.strip()
@@ -24,21 +32,30 @@ def check_exact_match(pred, expected):
         return False
 
 def run_tiny_sanity():
+    dataset_size = DATASET_SIZE
+    epochs = EPOCHS
+    batch_size = BATCH_SIZE
+    max_seq_len = MAX_SEQ_LEN
+    objective_mode = OBJECTIVE_MODE
+
+    batches_per_epoch = math.ceil(dataset_size / batch_size)
+    expected_optimizer_steps = batches_per_epoch * epochs
+
     print("=" * 60, flush=True)
-    print("RUNNING TINY SANITY TEST (200 samples, 20 epochs, 7.34M model)", flush=True)
+    print(f"RUNNING TINY SANITY TEST ({dataset_size} samples, {epochs} epochs, batch_size={batch_size}, 7.34M model)", flush=True)
+    print(f"Batches/Epoch: {batches_per_epoch} | Expected Optimizer Steps: {expected_optimizer_steps}", flush=True)
     print("=" * 60, flush=True)
+
+    assert expected_optimizer_steps == 1000, f"Step budget mismatch: Expected 1000 optimizer steps, got {expected_optimizer_steps}"
 
     torch.set_num_threads(4)
     device = "cpu"
 
     tokenizer = MathTokenizer.load("tokenizer/math_tokenizer.json")
     ds_dict = load_from_disk("data/processed_synthetic")
-    tiny_ds = ds_dict["train"].select(range(200))
+    tiny_ds = ds_dict["train"].select(range(dataset_size))
 
-    max_seq_len = 64
-    batch_size = 16
-
-    train_dataset = MathDataset(tiny_ds, tokenizer, max_seq_len, objective_mode="direct")
+    train_dataset = MathDataset(tiny_ds, tokenizer, max_seq_len, objective_mode=objective_mode)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn_batch)
 
     model_config = MathSLMConfig.from_dict({
@@ -54,9 +71,8 @@ def run_tiny_sanity():
 
     initial_loss = None
     final_loss = None
-    epochs = 80
 
-    print(f"Training 7.34M model on {len(tiny_ds)} examples for {epochs} epochs...", flush=True)
+    print(f"Training 7.34M model on {len(tiny_ds)} examples for {epochs} epochs (batch_size={batch_size}, total steps={expected_optimizer_steps})...", flush=True)
 
     for epoch in range(epochs):
         model.train()
@@ -79,8 +95,7 @@ def run_tiny_sanity():
             initial_loss = avg_loss
         final_loss = avg_loss
 
-        if (epoch + 1) % 10 == 0 or epoch == 0:
-            print(f"Epoch {epoch+1:02d}/{epochs} | Loss: {avg_loss:.4f}", flush=True)
+        print(f"Epoch {epoch+1:02d}/{epochs} | Loss: {avg_loss:.4f}", flush=True)
 
     loss_drop_pct = ((initial_loss - final_loss) / initial_loss) * 100.0
     print(f"\nInitial Loss: {initial_loss:.4f} -> Final Loss: {final_loss:.4f} (Drop: {loss_drop_pct:.2f}%)", flush=True)
@@ -90,7 +105,7 @@ def run_tiny_sanity():
     correct = 0
     failures = 0
 
-    print(f"\nEvaluating exact-answer accuracy on {len(eval_samples)} samples...", flush=True)
+    print(f"\nEvaluating exact-answer accuracy on {len(eval_samples)} training samples (memorization gate)...", flush=True)
     with torch.no_grad():
         for i, item in enumerate(eval_samples):
             q = item["question"]
