@@ -1,0 +1,30 @@
+smoke_test: false
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  tokenizer: tokenizer/math_tokenizer.json
+  checkpoints: checkpoints
+  logs: logs
+model:
+  vocab_size: 16384
+  max_seq_len: 256
+  n_layer: 4
+  n_head: 4
+  n_embd: 256
+  ffn_dim: 1024
+  dropout: 0.1
+  use_rope: true
+training:
+  batch_size: 8
+  epochs: 1
+  learning_rate: 0.0005
+  weight_decay: 0.01
+  eval_steps: 100
+  save_steps: 300
+  mixed_precision: true
+  device: auto
+generation:
+  max_new_tokens: 256
+  temperature: 0.7
+  top_k: 50
+  self_consistency_samples: 5
