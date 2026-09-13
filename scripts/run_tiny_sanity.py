@@ -49,7 +49,7 @@ def run_tiny_sanity():
     assert expected_optimizer_steps == 1000, f"Step budget mismatch: Expected 1000 optimizer steps, got {expected_optimizer_steps}"
 
     torch.set_num_threads(4)
-    device = "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     tokenizer = MathTokenizer.load("tokenizer/math_tokenizer.json")
     ds_dict = load_from_disk("data/processed_synthetic")
@@ -64,7 +64,8 @@ def run_tiny_sanity():
         "n_head": 4,
         "n_embd": 256,
         "max_seq_len": max_seq_len,
-        "ffn_dim": 1024
+        "ffn_dim": 1024,
+        "dropout": 0.0
     })
     model = MathSLM(model_config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
