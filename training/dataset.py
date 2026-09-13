@@ -58,7 +58,7 @@ class MathDataset(Dataset):
                 if objective_mode == "weighted_reasoning":
                     try:
                         a_idx = ids.index(a_id)
-                        for i in range(a_idx, len(ids)):
+                        for i in range(a_idx + 1, len(ids)):
                             if lbls[i] != -100:
                                 weights[i] = self.answer_loss_weight
                     except ValueError:

@@ -20,7 +20,16 @@ from training.train import collate_fn_batch, get_device, save_checkpoint
 from model.generation import generate
 from evaluation.metrics import calculate_exact_match
 
+import random
+import numpy as np
+
 def run_experiment(exp_name, exp_id, model_params, objective_mode, epochs, dataset_path="data/processed_synthetic", device_setting="auto", mixed_precision=True):
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(42)
+
     print("\n" + "=" * 70, flush=True)
     print(f"STARTING EXPERIMENT: {exp_name} ({exp_id})", flush=True)
     print(f"Model: {model_params['n_layer']}L / {model_params['n_head']}H / {model_params['n_embd']}D | Objective: {objective_mode} | Epochs: {epochs}", flush=True)

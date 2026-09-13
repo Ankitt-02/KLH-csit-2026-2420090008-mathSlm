@@ -32,6 +32,12 @@ def check_exact_match(pred, expected):
         return False
 
 def run_tiny_sanity():
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(42)
+
     dataset_size = DATASET_SIZE
     epochs = EPOCHS
     batch_size = BATCH_SIZE
@@ -49,7 +55,7 @@ def run_tiny_sanity():
     assert expected_optimizer_steps == 1000, f"Step budget mismatch: Expected 1000 optimizer steps, got {expected_optimizer_steps}"
 
     torch.set_num_threads(4)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = get_device("auto")
 
     tokenizer = MathTokenizer.load("tokenizer/math_tokenizer.json")
     ds_dict = load_from_disk("data/processed_synthetic")

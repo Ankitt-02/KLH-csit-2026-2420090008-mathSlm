@@ -18,6 +18,8 @@ from model.generation import generate, parse_generated_text, generate_self_consi
 from tokenizer.tokenizer import MathTokenizer
 from evaluation.metrics import calculate_exact_match
 
+from training.train import get_device
+
 def load_config(config_path="config/config.yaml"):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
@@ -118,7 +120,7 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.config)
-    device = "cpu" if config.get("smoke_test", False) else config["training"].get("device", "cpu")
+    device = "cpu" if config.get("smoke_test", False) else get_device(config["training"].get("device", "auto"))
 
     tokenizer_path = config["paths"]["tokenizer"]
     tokenizer = MathTokenizer.load(tokenizer_path)

@@ -67,6 +67,15 @@ def parse_generated_text(text):
                 answer = a_part.replace("[EOS]", "").strip()
             else:
                 reasoning = rest.replace("[EOS]", "").strip()
+    elif "[A]" in text:
+        parts = text.split("[A]")
+        if len(parts) > 1:
+            answer = parts[1].replace("[EOS]", "").strip()
+
+    if "\\boxed{" in answer:
+        answer = answer.split("\\boxed{")[1].split("}")[0].strip()
+    if " " in answer:
+        answer = answer.split()[0]
     return reasoning, answer
 
 def generate_self_consistency(model, tokenizer, prompt, num_samples=5, max_new_tokens=256, temperature=0.7, top_k=50, device="cpu"):

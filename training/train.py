@@ -208,7 +208,7 @@ def main():
         if "scheduler_state_dict" in checkpoint and checkpoint["scheduler_state_dict"]:
             scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         start_step = checkpoint.get("step", 0)
-        start_epoch = checkpoint.get("epoch", start_step // steps_per_epoch if steps_per_epoch > 0 else 0)
+        start_epoch = start_step // steps_per_epoch if steps_per_epoch > 0 else 0
         if "rng_state" in checkpoint and checkpoint["rng_state"]:
             rng = checkpoint["rng_state"]
             if "torch" in rng and rng["torch"] is not None:

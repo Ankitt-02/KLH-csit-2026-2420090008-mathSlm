@@ -7,6 +7,7 @@ from model.config import MathSLMConfig
 from model.transformer import MathSLM
 from model.generation import generate, parse_generated_text, generate_self_consistency
 from tokenizer.tokenizer import MathTokenizer
+from training.train import get_device
 
 def load_config(config_path="config/config.yaml"):
     with open(config_path, "r") as f:
@@ -15,7 +16,7 @@ def load_config(config_path="config/config.yaml"):
 class MathSLMInferenceEngine:
     def __init__(self, config_path="config/config.yaml", checkpoint_path=None):
         self.config = load_config(config_path)
-        self.device = "cpu" if self.config.get("smoke_test", False) else self.config["training"].get("device", "cpu")
+        self.device = "cpu" if self.config.get("smoke_test", False) else get_device(self.config["training"].get("device", "auto"))
 
         tokenizer_path = self.config["paths"]["tokenizer"]
         self.tokenizer = MathTokenizer.load(tokenizer_path)
