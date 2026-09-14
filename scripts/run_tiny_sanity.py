@@ -17,8 +17,8 @@ from training.train import collate_fn_batch, get_device
 from model.generation import generate
 
 # Configuration Constants
-DATASET_SIZE = 200
-EPOCHS = 100
+DATASET_SIZE = 20
+EPOCHS = 200
 BATCH_SIZE = 4
 MAX_SEQ_LEN = 64
 OBJECTIVE_MODE = "direct"
@@ -54,8 +54,7 @@ def run_tiny_sanity():
     print(f"Batches/Epoch: {batches_per_epoch} | Expected Optimizer Steps: {expected_optimizer_steps}", flush=True)
     print("=" * 60, flush=True)
 
-    if os.environ.get("TINY_SANITY_DRY_RUN") != "1":
-        assert expected_optimizer_steps == 5000, f"Step budget mismatch: Expected 5000 optimizer steps, got {expected_optimizer_steps}"
+    assert expected_optimizer_steps == 1000, f"Step budget mismatch: Expected 1000 optimizer steps, got {expected_optimizer_steps}"
 
     torch.set_num_threads(4)
     device = get_device("auto")

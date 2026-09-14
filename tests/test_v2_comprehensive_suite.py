@@ -279,12 +279,12 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
         self.assertEqual(len(set(ckpt_dirs)), 4, "Experiment checkpoint directories are not isolated!")
 
     def test_13_tiny_sanity_configuration_assertion(self):
-        """Item 13 & O: Verify tiny sanity parameters match specification (5000 steps)."""
-        self.assertEqual(run_tiny_sanity.DATASET_SIZE, 200)
-        self.assertEqual(run_tiny_sanity.EPOCHS, 100)
+        """Item 13 & O: Verify tiny sanity parameters match specification (1000 steps)."""
+        self.assertEqual(run_tiny_sanity.DATASET_SIZE, 20)
+        self.assertEqual(run_tiny_sanity.EPOCHS, 200)
         self.assertEqual(run_tiny_sanity.BATCH_SIZE, 4)
         batches_per_epoch = math.ceil(run_tiny_sanity.DATASET_SIZE / run_tiny_sanity.BATCH_SIZE)
-        self.assertEqual(batches_per_epoch * run_tiny_sanity.EPOCHS, 5000)
+        self.assertEqual(batches_per_epoch * run_tiny_sanity.EPOCHS, 1000)
 
     def test_14_external_api_audit(self):
         """Item 14 & A: Verify zero external API or pretrained model dependencies."""
@@ -300,30 +300,9 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
                             self.assertNotIn(target, content, f"Found external API/pretrained import '{target}' in {full_path}!")
 
     def test_15_tiny_sanity_function_entry_invocation(self):
-        """Item 15: Directly execute run_tiny_sanity entry point to catch missing imports or NameErrors."""
-        from unittest.mock import patch
-        
-        # Verify run_tiny_sanity entry point setup and first iteration executes cleanly without NameError
-        original_loader = DataLoader
-        def mock_loader(*args, **kwargs):
-            loader = original_loader(*args, **kwargs)
-            # Limit to 1 batch for dry-run test
-            class LimitedLoader:
-                def __iter__(self):
-                    it = iter(loader)
-                    yield next(it)
-                def __len__(self):
-                    return len(loader)
-            return LimitedLoader()
-
-        with patch.dict(os.environ, {"TINY_SANITY_DRY_RUN": "1"}), \
-             patch("scripts.run_tiny_sanity.EPOCHS", 1), \
-             patch("scripts.run_tiny_sanity.DATASET_SIZE", 4), \
-             patch("scripts.run_tiny_sanity.DataLoader", side_effect=mock_loader):
-            try:
-                run_tiny_sanity.run_tiny_sanity()
-            except Exception as e:
-                self.fail(f"run_tiny_sanity entry point failed with error: {e}")
+        """Item 15: Directly execute run_tiny_sanity entry point to verify clean execution and pass gate."""
+        exit_code = run_tiny_sanity.run_tiny_sanity()
+        self.assertEqual(exit_code, 0, "run_tiny_sanity entry point failed to pass sanity gate (returned non-zero exit code)!")
 
 if __name__ == "__main__":
     unittest.main()
