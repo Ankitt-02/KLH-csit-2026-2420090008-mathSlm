@@ -18,7 +18,7 @@ from model.generation import generate
 
 # Configuration Constants
 DATASET_SIZE = 200
-EPOCHS = 20
+EPOCHS = 100
 BATCH_SIZE = 4
 MAX_SEQ_LEN = 64
 OBJECTIVE_MODE = "direct"
@@ -54,7 +54,8 @@ def run_tiny_sanity():
     print(f"Batches/Epoch: {batches_per_epoch} | Expected Optimizer Steps: {expected_optimizer_steps}", flush=True)
     print("=" * 60, flush=True)
 
-    assert expected_optimizer_steps == 1000, f"Step budget mismatch: Expected 1000 optimizer steps, got {expected_optimizer_steps}"
+    if os.environ.get("TINY_SANITY_DRY_RUN") != "1":
+        assert expected_optimizer_steps == 5000, f"Step budget mismatch: Expected 5000 optimizer steps, got {expected_optimizer_steps}"
 
     torch.set_num_threads(4)
     device = get_device("auto")
@@ -109,7 +110,7 @@ def run_tiny_sanity():
     loss_drop_pct = ((initial_loss - final_loss) / initial_loss) * 100.0
     print(f"\nInitial Loss: {initial_loss:.4f} -> Final Loss: {final_loss:.4f} (Drop: {loss_drop_pct:.2f}%)", flush=True)
 
-    eval_samples = tiny_ds.select(range(50))
+    eval_samples = tiny_ds.select(range(min(50, len(tiny_ds))))
     model.eval()
     correct = 0
     failures = 0

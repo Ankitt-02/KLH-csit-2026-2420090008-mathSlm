@@ -279,12 +279,12 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
         self.assertEqual(len(set(ckpt_dirs)), 4, "Experiment checkpoint directories are not isolated!")
 
     def test_13_tiny_sanity_configuration_assertion(self):
-        """Item 13 & O: Verify tiny sanity parameters match specification (1000 steps)."""
+        """Item 13 & O: Verify tiny sanity parameters match specification (5000 steps)."""
         self.assertEqual(run_tiny_sanity.DATASET_SIZE, 200)
-        self.assertEqual(run_tiny_sanity.EPOCHS, 20)
+        self.assertEqual(run_tiny_sanity.EPOCHS, 100)
         self.assertEqual(run_tiny_sanity.BATCH_SIZE, 4)
         batches_per_epoch = math.ceil(run_tiny_sanity.DATASET_SIZE / run_tiny_sanity.BATCH_SIZE)
-        self.assertEqual(batches_per_epoch * run_tiny_sanity.EPOCHS, 1000)
+        self.assertEqual(batches_per_epoch * run_tiny_sanity.EPOCHS, 5000)
 
     def test_14_external_api_audit(self):
         """Item 14 & A: Verify zero external API or pretrained model dependencies."""
@@ -316,7 +316,10 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
                     return len(loader)
             return LimitedLoader()
 
-        with patch("scripts.run_tiny_sanity.DataLoader", side_effect=mock_loader):
+        with patch.dict(os.environ, {"TINY_SANITY_DRY_RUN": "1"}), \
+             patch("scripts.run_tiny_sanity.EPOCHS", 1), \
+             patch("scripts.run_tiny_sanity.DATASET_SIZE", 4), \
+             patch("scripts.run_tiny_sanity.DataLoader", side_effect=mock_loader):
             try:
                 run_tiny_sanity.run_tiny_sanity()
             except Exception as e:

@@ -12,12 +12,12 @@ class TestTinySanityConfig(unittest.TestCase):
         """
         Regression test ensuring Tiny Sanity parameters match the V2 specification:
         - DATASET_SIZE == 200
-        - EPOCHS == 20
+        - EPOCHS == 100
         - BATCH_SIZE == 4
-        - EXPECTED_OPTIMIZER_STEPS == 1000
+        - EXPECTED_OPTIMIZER_STEPS == 5000
         """
         self.assertEqual(run_tiny_sanity.DATASET_SIZE, 200)
-        self.assertEqual(run_tiny_sanity.EPOCHS, 20)
+        self.assertEqual(run_tiny_sanity.EPOCHS, 100)
         self.assertEqual(run_tiny_sanity.BATCH_SIZE, 4)
         self.assertEqual(run_tiny_sanity.MAX_SEQ_LEN, 64)
         self.assertEqual(run_tiny_sanity.OBJECTIVE_MODE, "direct")
@@ -26,7 +26,7 @@ class TestTinySanityConfig(unittest.TestCase):
         self.assertEqual(batches_per_epoch, 50)
 
         expected_optimizer_steps = batches_per_epoch * run_tiny_sanity.EPOCHS
-        self.assertEqual(expected_optimizer_steps, 1000)
+        self.assertEqual(expected_optimizer_steps, 5000)
 
 if __name__ == "__main__":
     unittest.main()
