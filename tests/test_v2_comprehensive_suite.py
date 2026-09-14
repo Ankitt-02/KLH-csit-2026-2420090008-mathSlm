@@ -304,5 +304,13 @@ class TestV2ComprehensiveSuite(unittest.TestCase):
         exit_code = run_tiny_sanity.run_tiny_sanity()
         self.assertEqual(exit_code, 0, "run_tiny_sanity entry point failed to pass sanity gate (returned non-zero exit code)!")
 
+    def test_16_reasoning_evaluation_token_budget(self):
+        """Item 16: Verify run_controlled_matrix evaluation uses max_new_tokens=64 to prevent reasoning truncation."""
+        matrix_path = os.path.join("scripts", "run_controlled_matrix.py")
+        with open(matrix_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("max_new_tokens=64", content, "run_controlled_matrix.py evaluation does not use max_new_tokens=64!")
+        self.assertNotIn("max_new_tokens=32", content, "Stale max_new_tokens=32 found in run_controlled_matrix.py!")
+
 if __name__ == "__main__":
     unittest.main()

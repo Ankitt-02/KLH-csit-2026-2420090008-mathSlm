@@ -156,7 +156,7 @@ def run_experiment(exp_name, exp_id, model_params, objective_mode, epochs, datas
             gen_prompt = f"[Q] {q} [A] " if objective_mode == "direct" else f"[Q] {q} [R] "
             gen_input = torch.tensor(tokenizer.encode(gen_prompt), dtype=torch.long).unsqueeze(0).to(device)
 
-            out_ids = generate(model, gen_input, max_new_tokens=32, temperature=0.0, device=device, eos_id=tokenizer.eos_id)
+            out_ids = generate(model, gen_input, max_new_tokens=64, temperature=0.0, device=device, eos_id=tokenizer.eos_id)
             out_text = tokenizer.decode(out_ids[0].tolist(), skip_special_tokens=False)
 
             pred_ans = ""
