@@ -109,6 +109,39 @@ def process_math(smoke_test=False):
             
     return processed_data
 
+def parse_mathqa_options(options_str):
+    if not isinstance(options_str, str) or not options_str.strip():
+        return {}
+    pattern = r'([a-e])\s*\)\s*(.*?)(?=(?:,\s*[a-e]\s*\)|$))'
+    matches = re.findall(pattern, options_str, re.IGNORECASE)
+    options_dict = {}
+    for letter, val in matches:
+        cleaned_val = val.strip().rstrip(',')
+        options_dict[letter.lower()] = cleaned_val
+    return options_dict
+
+def extract_mathqa_answer(item):
+    correct_choice = str(item.get("correct", "")).strip().lower()
+    options_str = item.get("options", "")
+    options_dict = parse_mathqa_options(options_str)
+
+    if correct_choice in options_dict:
+        ans = options_dict[correct_choice]
+        ans_clean = re.sub(r'^(?:rs\.?|\$)\s*', '', ans, flags=re.IGNORECASE).strip()
+        if ans_clean and ans_clean.lower() not in ["a", "b", "c", "d", "e"]:
+            return ans_clean
+
+    # Fallback to Rationale regex
+    rationale = item.get("Rationale", "")
+    rat_match = re.search(r'answer\s*[:=]\s*([^\n\.,]+)', rationale, re.IGNORECASE)
+    if rat_match:
+        ans_clean = rat_match.group(1).strip()
+        ans_clean = re.sub(r'^(?:rs\.?|\$)\s*', '', ans_clean, flags=re.IGNORECASE).strip()
+        if ans_clean and ans_clean.lower() not in ["a", "b", "c", "d", "e"]:
+            return ans_clean
+
+    return ""
+
 def process_mathqa(smoke_test=False):
     print("Processing MathQA...")
     url = "https://math-qa.github.io/math-QA/data/MathQA.zip"
@@ -128,7 +161,7 @@ def process_mathqa(smoke_test=False):
                         for item in tqdm(raw_items, desc=f"MathQA {fname}"):
                             q = clean_text(item.get("Problem", ""))
                             reasoning = clean_text(item.get("Rationale", ""))
-                            final_answer = clean_text(str(item.get("correct", "")))
+                            final_answer = clean_text(extract_mathqa_answer(item))
                             cat = item.get("category", "general")
                             diff = compute_difficulty(q, reasoning, "mathqa")
                             
