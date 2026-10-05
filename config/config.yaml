@@ -22,8 +22,8 @@ training:
   epochs: 20
   learning_rate: 0.001
   weight_decay: 0.01
-  eval_steps: 1759
-  save_steps: 3518
+  eval_steps: 1739
+  save_steps: 1739
   mixed_precision: true
   device: auto
 
